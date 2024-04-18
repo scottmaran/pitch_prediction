@@ -1,0 +1,37 @@
+
+## Data Preprocessing
+
+- Remove FA, bc not sure if FF or FT (and only 204 samples)
+- Decision: FT (two seamer) and SI (sinker) usually grouped together. Same speed as FF (four-seamer fastball), but:
+    FT: more horizontal movement, "tailing"
+    SI: more vertical drop
+    - May have enough data where we'll keep separate
+    - Fangraphs example groups together (https://community.fangraphs.com/no-pitch-is-an-island-pitch-prediction-with-sequence-to-sequence-deep-learning/)
+
+    pitch_type
+    FF    238541  
+    SL    109756  
+    SI     87740  
+    FT     81056  
+    CH     72641  
+    CU     56379  
+    FC     41702  
+    FS     10503  
+    KC      8490  
+    KN      4450  
+    IN      4058  
+    PO       559  
+    FO       329  
+    FA       204  
+    EP       134  
+    SC       120  
+    UN        17  
+    AB         2  
+
+## Examples
+
+I got the average throw rates for each pitch type.
+
+I then looked to see what kind of deviations from these averages existed.
+
+For example, FF = 35.4%. Pitcher 547973 has FF=83.9% over 877 pitchers. He only ever throws two kinds of pitches. 

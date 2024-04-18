@@ -1,0 +1,64 @@
+
+pcount_at_bat = balls + strikes + fouls
+
+Features:
+    Game context:
+        - time/date/year (start_tfs_zulu, date, year)
+        - score of game (home_team_runs - away_team_runs)
+        - who's on base (on_1b, on_2b, on_3b)
+        - inning, top of inning (inning, top)
+        - balls/strikes/fouls/outs
+    Pitcher/Batter context:
+        - pitcher handedness (p_throws)
+        - pcount_pitcher (total num pitches thrown by pitcher)
+        - batter stance (stand)
+        - batter height (b_height)
+        - at_bat_num (THINK where in batting order)
+    Past Pitcher tendencies:
+
+    - how good the batter is (past batting average)
+
+Target: (https://www.daktronics.com/en-us/support/kb/DD3312647)
+    Fastballs: - defined by speed 
+        'FA', Fastball
+        'FF', Four-Seam Fastball    - Carry (straight)
+        'FT', Two-Seam Fastball     - Run 
+        'SI', Sinker                - Drop 
+
+        'FC', Fastball (cutter)     - Horizontal, opposite direction of two-seamer 
+            - for RHP, right to left (like volleyball cut shot)
+
+        'FS', Split-Fingered        - looks like fastball till drops
+    Others: - defined by movement 
+        'SL', Slider                - sideways, same direction as cutter, more sweeping (i.e. see break happening from beginning to end)
+        'CU', Curveball             - up and down 
+        'CH', Changeup              - look like fastball but are slower (gets batter to swing too early), can have some fade (move right with righties)
+        'KC', Knuckle-Curve
+        'KN', Knucleball 
+        'EP', Eephus                - rare, "slowball"
+    Other: 
+        'UN', Unidentified
+        'PO', Pitch out 
+        'FO', Forkball
+        'SC', Screwball
+
+        'IN', Intentional Ball
+        'AB', Automatic Ball 
+    Links:
+        https://www.mlb.com/news/identifying-pitch-types-a-fan-s-guide
+
+Models:
+    - Seq-to-Seq model: given sequence of pitch with context
+    - Tree model: given player's prior stats and current context, predict pitch type
+    
+    
+    - If have tabular data (e.g. classification types), maybe tree model
+    -
+
+Time/Work:
+4/17 11:30pm - 12:30am
+    - review features, read about different pitches 
+4/17 12:30am - 1:00am
+    - review background/prior research 
+4/17 2:00am - 2:30am
+    - cleaning data 
