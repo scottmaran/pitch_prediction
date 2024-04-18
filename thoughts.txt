@@ -17,6 +17,8 @@ Features:
     Past Pitcher tendencies:
 
     - how good the batter is (past batting average)
+    - Do we need pitcher ID if we have as feature all pitch type history rates?
+        Actually maybe? For tree model, easier to split based on id than one of pitch type 
 
 Target: (https://www.daktronics.com/en-us/support/kb/DD3312647)
     Fastballs: - defined by speed 
