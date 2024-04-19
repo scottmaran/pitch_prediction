@@ -31,9 +31,14 @@ Target preprocessing:
     AB         2
 
 Prior Work:
+Good Paper: LDA, SVM, and RandomForest (https://content.iospress.com/download/journal-of-sports-analytics/jsa171?id=journal-of-sports-analytics%2Fjsa171)
+    - one of leading papers on multiclass classification
+Ryan Plunkett (https://dash.harvard.edu/bitstream/handle/1/37364634/PLUNKETT-SENIORTHESIS-2019.pdf?sequence=1&isAllowed=y)
+    - pitcher similarity leverage
+LSTM Paper (https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9859411)
+
 Fan Graphs LSTM : https://community.fangraphs.com/no-pitch-is-an-island-pitch-prediction-with-sequence-to-sequence-deep-learning/
     - 85,927 plate appearances for training, two-layer LSTM, Encoder-Decoder model 
-    - target = final two pitches in plate appearance 
+    - target = final two pitches in plate appearance  
 Good Kaggle Notebook : https://www.kaggle.com/code/pschale/pitch-type-prediction
-Good Paper: LDA, SVM, and RandomForest 
 (Sloppy) RandomForest repo : https://github.com/Yuanyuan229/Pitch-Type-Prediction

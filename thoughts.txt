@@ -57,10 +57,19 @@ Models:
     - If have tabular data (e.g. classification types), maybe tree model
     -
 
+To do: 
+- Get baseline tendencies
+- Get xgboost models up 
+- Get transformers going 
+
 Time/Work:
 4/17 11:30pm - 12:30am
     - review features, read about different pitches 
 4/17 12:30am - 1:00am
     - review background/prior research 
 4/17 2:00am - 2:30am
-    - cleaning data 
+    - cleaning data  
+4/18 1:45pm - 2:15, 2:45pm-3:30pm
+    - prior work 
+4/18 4:10pm - 4:50pm
+    - compiling dataset for trees
