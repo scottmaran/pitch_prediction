@@ -23,9 +23,8 @@ def objective(trial, train_X, train_y, val_X, val_y, train_weights=None, val_wei
               "min_child_weight" : trial.suggest_int('min_child_weight', 1, 10, step=1), 
               "colsample_bytree" : trial.suggest_float('subsample', 0.1, 1, step=0.1),
             }
-    OBJECTIVE_FUNC = 'objective=multi:softprob'
     clf = xgb.XGBClassifier(tree_method="hist", enable_categorical=True, early_stopping_rounds=10,
-                            objective=OBJECTIVE_FUNC, eval_metric=['merror','mlogloss'], **param)
+                            objective='objective=multi:softprob', eval_metric=['merror','mlogloss'], **param)
     
     if train_weights is None:
       clf.fit(train_X, train_y, eval_set=[(val_X, val_y)], verbose=0)
@@ -84,15 +83,16 @@ def main():
     
     train_y = train_y.map(mapping)
     val_y = val_y.map(mapping)
+    print(f"Beginning Optuna Study...")
 
     study = optuna.create_study(direction="minimize")
-    study.optimize(lambda x : objective(x, train_X, train_y, val_X, val_y, train_weights, val_weights.values.reshape(1,-1)), n_trials=5)
+    study.optimize(lambda x : objective(x, train_X, train_y, val_X, val_y, train_weights, val_weights.values.reshape(1,-1)), n_trials=30)
     print(f"Best Params = {study.best_params}")
     with open(MODEL_INFO_FILEPATH, "a") as text_file:
         print(f"Best Params = {study.best_params}", file=text_file)
     
     clf = xgb.XGBClassifier(tree_method="hist", enable_categorical=True, early_stopping_rounds=10,
-                                        objective='objective=multi:softmax', eval_metric=['merror','mlogloss'], **study.best_params)
+                                        objective='objective=multi:softprob', eval_metric=['merror','mlogloss'], **study.best_params)
     clf.fit(train_X, train_y, eval_set=[(val_X, val_y)], sample_weight=train_weights, sample_weight_eval_set=val_weights.values.reshape(1,-1))
 
     pickle.dump(clf, open(f"{DIRECTORY_PATH}/xgb_model.pkl", "wb"))
@@ -141,3 +141,6 @@ def main():
     plot_importance(clf, importance_type='gain', max_num_features=20, ax=ax1)
     plt.savefig(f"{DIRECTORY_PATH}/feature_importance.png")
     plt.show()
+
+if __name__ == "__main__":
+    main()
