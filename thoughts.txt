@@ -57,6 +57,10 @@ Models:
     - If have tabular data (e.g. classification types), maybe tree model
     -
 
+Results:
+    - one big tree          -> 46.2%
+    - individual XGBoosts   -> 42.6%
+
 To do: 
 - Get baseline tendencies
 - Get xgboost models up 
@@ -73,3 +77,4 @@ Time/Work:
     - prior work 
 4/18 4:10pm - 4:50pm
     - compiling dataset for trees
+

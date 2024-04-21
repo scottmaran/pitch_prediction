@@ -67,6 +67,7 @@ Overview:
     - But, doesn't generalize well to new pitchers
 
 ### Through out low confidence, or weight each pitch
+    - Weighted improved accuracy
 
 ### Prior pitches thrown in previous matchup
     - Can be useful, but sparse and misleading bc of small sample size (as asserted by Ryan Plunkett).
@@ -85,3 +86,7 @@ Overview:
 - One big Transformer for all
 - Transformer for each 
 (if time, LSTM for each)
+
+## Results
+
+No specific pitcher split - validation_0-merror:0.58835	validation_0-mlogloss:1.61318

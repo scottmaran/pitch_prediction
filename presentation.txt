@@ -42,3 +42,4 @@ Fan Graphs LSTM : https://community.fangraphs.com/no-pitch-is-an-island-pitch-pr
     - target = final two pitches in plate appearance  
 Good Kaggle Notebook : https://www.kaggle.com/code/pschale/pitch-type-prediction
 (Sloppy) RandomForest repo : https://github.com/Yuanyuan229/Pitch-Type-Prediction
+
