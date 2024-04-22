@@ -83,6 +83,7 @@ def main():
     
     train_y = train_y.map(mapping)
     val_y = val_y.map(mapping)
+    test_y = test_y.map(mapping)
     print(f"Beginning Optuna Study...")
 
     study = optuna.create_study(direction="minimize")
@@ -116,14 +117,11 @@ def main():
         print('\n------------------ Confusion Matrix for Full Model -----------------\n', file=text_file)
         print(f"{pd.DataFrame(cmatrix, columns=list(mapping.keys()), index=list(mapping.keys()))}", file=text_file)
     
-    # recall = (np.diagonal(confusion_matrix)/np.sum(confusion_matrix,axis=1)).round(3)
     print(classification_report(val_y, y_pred, target_names=list(mapping.keys())))
-
     with open(MODEL_INFO_FILEPATH, "a") as text_file:
         print(classification_report(val_y, y_pred, target_names=list(mapping.keys())), file=text_file)
 
     ''' Test Stats '''
-    test_y = test_y.map(mapping)
     y_test_pred = clf.predict(test_X)
     print('\n------------------ TEST DATA Confusion Matrix -----------------\n')
     test_cmatrix = confusion_matrix(test_y, y_test_pred)

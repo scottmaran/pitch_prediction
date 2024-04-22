@@ -61,7 +61,27 @@ Fan Graphs LSTM : https://community.fangraphs.com/no-pitch-is-an-island-pitch-pr
     - target = final two pitches in plate appearance  
 Good Kaggle Notebook : https://www.kaggle.com/code/pschale/pitch-type-prediction
 (Sloppy) RandomForest repo : https://github.com/Yuanyuan229/Pitch-Type-Prediction
+Paper by Glenn Sidle and Hien Tran (2015)
+Overview:
+    - RAN AN INDIVIDUAL MODEL FOR EACH PITCHER
+    - Used data from three seasons (2013-2015) to predict pitch type, achieved 66.62% accuracy using LDA, SVM, RF
+    - binary prediction (fastball vs non-fastball) usueally around 70% accuracy
+    - Seven pitch categories and those that had type confidence greater than 80%
+    fastball (FF, 1), cutter (CT, 2), sinker (SI, 3), slider (SL, 4), curveball (CU, 5), changeup (CH, 6), and knuckleball (KN, 7)
+    - only used pitchers with at least 500 pitches in a season, so 287 unique pitchers (150 starters vs 137 relievers)
+    - average pitcher had 81 features
+    - Features: pretty much what I was thinking. Get game state, pitchers prior tendencies, and batter's tendencies
+Model:
+    - 66.62% accuracte with RF
+    - gives prediction accuracy for each pitch count 
+    - looked at correlations - the higher the HHI (how often throw the same pitch), the more accurate the model (R^2=.77)
+    - gave feature importance 
 
+IIE Paper
+Overview:
+    - Also individual models for pitches
+    - Did some weird/interesting sequence manipulation to have more samples
+    - LSTM models and XGBoost
 
 Models:
     - Seq-to-Seq model: given sequence of pitch with context

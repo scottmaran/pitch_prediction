@@ -28,7 +28,7 @@ Other:
 
 # Exploratory Data Analysis
 
-There are 662 unique pitchers in the dataset. There are a wide range of different pitch type distributions from different pitchers. Multiple pitchers with hundreds of pitchers throw Four-Seam Fastballs over 80% of the time while some never throw them while around 15% of pitchers throw Four-Seam Fastballs less than 10% of the time. For every one of 'FF', 'FT', 'SI', 'FC', 'FS', 'SL', 'CU', there's at least one pitcher who throws it at least 75% of the time (and has a reasonably large sample size).
+There are 662 unique pitchers in the dataset. There are a wide range of different pitch type distributions from different pitchers. Multiple pitchers with hundreds of pitchers throw Four-Seam Fastballs over 80% of the time while some never throw them. Around 15% of pitchers throw Four-Seam Fastballs less than 10% of the time. For every one of 'FF', 'FT', 'SI', 'FC', 'FS', 'SL', 'CU', there's at least one pitcher who throws that type at least 75% of the time (with a reasonably large sample size).
 
 The distribution of pitch types:
 
@@ -71,29 +71,25 @@ This is surprising to me for many reasons.
 3) If you want to predict pitches on a previously-unseen pitcher, you need to build a whole new model
 4) And if you want to predict pitches on pitchers with a really low sample size...
 
-The solution to 1 is to not vary the number of output categories, but the rest are real limitations of individual models that are alleviated by a single global model. The tradeoff is that the global model may not be able to capture each individual's specific tendencies as well.
+The solution to 1) is to not vary the number of output categories, but the rest are limitations of individual models that are alleviated by a single global model. The tradeoff is that the global model may not be able to capture each individual's specific tendencies as well.
 
 ### Include pitcher_id as a feature? How to characterize a pitcher
 
-How can we get our global model to still capture the nuances of each pitcher's decision process? If we included the pitcher_id as a categorical variable, we'd likely run into a lot of the same issues as above. So the question becomes can we tell our model everything about a pitcher that we think would affect his decision on the next pitch type?
+How can we get our global model to still capture the nuances of each pitcher's decision process? We could include pitcher_id as a categorical variable, and then this could let the model decide when it's optimal to split by each pitcher or not. This creates thousands of new dummy-encoded variables though.
 
-An example: let's say we would have trained an individual model for Justin Verlander and he uniquely likes to throw a Changeup (CU) after a Sinker (SI). The individual model would only see Verlander's pitches and pick up on this 
-
-If our primary concern is about missing unique trends within each pitcher
-
-But we still want that information.
-
-What do we want out of the pitcher though?
-
-Most of my engineered features deal with ENCODING the pitcher's pitch type distribution. This is done by including information from:
+So the question becomes how can we fully describe each pitcher in the feature space? If our primary concern is about missing unique trends for each pitcher, we can add as features the types of pitches they've thrown in the past. A large portion of my engineered features try to deal with this:
 - their previous pitch type/result
 - their previous pitch stats (speed, length, angle)
 - their previous 5 pitch type tendencies
 - their previous 10 pitch type tendencies
 - their previous 20 pitch type tendencies
 - historical previous pitch type tendencies
- 
-The hope is that including this information fully describes a pitcher.
+
+I also include some basic batter tendencies and specific tendencies for when the pitcher and specific batter have met before.
+
+The tradeoff here is that now, for each pitch, the model gets to view (close to) the pitcher's full tendencies in isolation from other pitchers. However, these tendencies are without the context of the other features that are present in the actual sample. Hypothetically, say Verlander usually throws 1) a Changeup (CU) after a Splitter (FS) and 2) throws more Sliders in later innings. In our global model, we will pick up on 1) with several features like previous_pitch_type, prev_5_FS_%, etc. However, the global model will only pick up on the trend for 2) in the global population, not specific to Verlander. So if pitchers generally throw less Sliders in later innings, then with our current feature set we will see more training examples with less Sliders in later innings and not predict it. This is in contrast to a single model trained on only Verlander's data, which will only see the relationship between Sliders and innings conditioned on Verlander's pitches..
+
+The ideal goal would be to include information that fully describes a pitcher. While it's unlikely this covers everything, the hope is that we can get our feature space close so we don't have to use categorical variables to describe pitchers.
 
 ## Type Confidence
 
@@ -165,9 +161,19 @@ My next steps would be digging into this more closely.
 There are two main architectural steps we could take - use a neural network instead of a tree-based model, and represent the input as a sequence of pitches as opposed to a singular pitch. Do to time constraints I did not implement this and only started with the XGBoost implementation.
 ## Pitcher Representation/Sample Size
 We are only given the 2011 season data which affects many aspects of this model. Besides more data giving us a larger sample size, our estimates of tendencies in the beginning of the season are worse since there is no prior information for these samples. More historical data would alleviate this problem.
+## Similarity Metrics 
+In Ryan Plunkett's [thesis](https://dash.harvard.edu/bitstream/handle/1/37364634/PLUNKETT-SENIORTHESIS-2019.pdf?sequence=1&isAllowed=y) on the subject of pitch prediction, he proposes:
+> Since every pitcher is unique, rather than weighting all observations
+equally when attempting to make predictions for a specific individual, we
+instead introduce the idea of “similarity analysis” via kernel-weighting
+mechanisms, in which pitchers deemed comparable via some metric are
+leveraged more heavily during the training of our localized models
+
+I really like this idea - in general I think similarity/chemistry metrics are an under-developed area in the sports analytics space and have even [proposed](https://www.kaggle.com/code/smaran2430/positionless-tackles-novel-tackler-assessment) my own similarity metric for NFL players. While I think the utility of such a procedure decreases when using one global model instead of localized models, I am extremely interested in its potential application to new features. What if we applied this to batters, weighing previous pitches thrown by the same pitcher based on how similar a batting profile the batter has to previous batters faced? Or just create new features with pitcher tendencies against different batter profiles.
+
 ### Other Things:
-- Think about other useful features
-- Further investigate confidence type (why are some pitches more confident than others, what does it mean when its 0?)
+- Think about other useful features.
+- Further investigate confidence type (why are some pitches more confident than others, what does it mean when its 0?).
 - Incorporate team strategy/style into matchup/tendencies (e.g. do certain teams have a certain batting style that pitchers adapt to?)
 
 ## Small Notes:
@@ -176,30 +182,16 @@ We are only given the 2011 season data which affects many aspects of this model.
 
 In previous studies like [Sidle and Tran](https://content.iospress.com/download/journal-of-sports-analytics/jsa171?id=journal-of-sports-analytics%2Fjsa171), they encode strikes, balls, and outs as categorical. This seems suboptimal as they are counts, but I do not know the impact of the decision on how to encode these. While I would suspect this to have a marginal impact, in Sidle and Tran's model strikes and balls are the second and third most important features respectively. I think this requires further thought. 
 
+### Pitcher_id as a feature
+
+Theoretically, I'm uncertain the impact of using pitcher_id as a feature. While like mentioned it would be a good way to balance the tradeoff between individual models and one single model, I'm uncertain what the implications are on predicting on an unseen pitcher. Regardless, I tried including and excluding it and the difference was small, with excluding it actually producing a better test accuracy.  
+
 ### Class Imbalances
 
 As seen in the exploratory analysis, there are several pitch types that are very rarely seen. I am not worried about this class imbalance for two main reasons. Firstly, this represents the true distribution of pitch types in the league. Secondly, we have no extra interest in the uncommon classes compared to the common classes, so there's no particular reason to focus on those classes while we can still improve on the most common. In our best model we fail to correctly predict any of the 19 EP pitches, but that's only 19 out of over 70,000 pitches. We still have thousands of Four-Seam Fastballs misclassified. 
 
 It does represent an opportunity to improve the model, but my guess would be that adding more valuable features for these classes would be more useful than weighing the entire dataset in a different manner (e.g. adding a "has ever thrown an EP pitch" column).
 
-### Validation splits
+### Validation Splits
 
 Since we are dealing with time series, we note that we are careful not to have future events in our training set.
-
-### Pitcher Similarity Metrics
-
-In Ryan Plunkett's [thesis](https://dash.harvard.edu/bitstream/handle/1/37364634/PLUNKETT-SENIORTHESIS-2019.pdf?sequence=1&isAllowed=y) on the subject of pitch prediction, he proposes:
-> Since every pitcher is unique, rather than weighting all observations
-equally when attempting to make predictions for a specific individual, we
-instead introduce the idea of “similarity analysis” via kernel-weighting
-mechanisms, in which pitchers deemed comparable via some metric are
-leveraged more heavily during the training of our localized models
-
-I really like this idea - in general I think similarity/chemistry metrics are an under-developed area in the sports analytics space and have even [proposed](https://www.kaggle.com/code/smaran2430/positionless-tackles-novel-tackler-assessment) my own similarity metric for NFL players.
-
-
-An interesting idea to help characterize pitchers. By Ryan Plunkett in his thesis. I actually really like this idea. 
-
-- Can be useful, but sparse and misleading bc of small sample size (as asserted by Ryan Plunkett).
-- Ryan tries to create more stable features by using some similarity measure
-- Given only have one season, estimates wouldn't be as stable
