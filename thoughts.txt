@@ -31,7 +31,7 @@ Target: (https://www.daktronics.com/en-us/support/kb/DD3312647)
             - for RHP, right to left (like volleyball cut shot)
 
         'FS', Split-Fingered        - looks like fastball till drops
-    Others: - defined by movement 
+    Breaking Balls: - defined by movement 
         'SL', Slider                - sideways, same direction as cutter, more sweeping (i.e. see break happening from beginning to end)
         'CU', Curveball             - up and down 
         'CH', Changeup              - look like fastball but are slower (gets batter to swing too early), can have some fade (move right with righties)
@@ -49,6 +49,20 @@ Target: (https://www.daktronics.com/en-us/support/kb/DD3312647)
     Links:
         https://www.mlb.com/news/identifying-pitch-types-a-fan-s-guide
 
+Prior Work:
+Good Paper: LDA, SVM, and RandomForest (https://content.iospress.com/download/journal-of-sports-analytics/jsa171?id=journal-of-sports-analytics%2Fjsa171)
+    - one of leading papers on multiclass classification
+Ryan Plunkett (https://dash.harvard.edu/bitstream/handle/1/37364634/PLUNKETT-SENIORTHESIS-2019.pdf?sequence=1&isAllowed=y)
+    - pitcher similarity leverage
+LSTM Paper (https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9859411)
+
+Fan Graphs LSTM : https://community.fangraphs.com/no-pitch-is-an-island-pitch-prediction-with-sequence-to-sequence-deep-learning/
+    - 85,927 plate appearances for training, two-layer LSTM, Encoder-Decoder model 
+    - target = final two pitches in plate appearance  
+Good Kaggle Notebook : https://www.kaggle.com/code/pschale/pitch-type-prediction
+(Sloppy) RandomForest repo : https://github.com/Yuanyuan229/Pitch-Type-Prediction
+
+
 Models:
     - Seq-to-Seq model: given sequence of pitch with context
     - Tree model: given player's prior stats and current context, predict pitch type
@@ -61,20 +75,9 @@ Results:
     - one big tree          -> 46.2%
     - individual XGBoosts   -> 42.6%
 
-To do: 
-- Get baseline tendencies
-- Get xgboost models up 
-- Get transformers going 
+(Precision : given all predictions, how many true)
+    (cares about false positives)
+(Recall : given all true, how many did we predict)
+    (cares about false negatives)
 
-Time/Work:
-4/17 11:30pm - 12:30am
-    - review features, read about different pitches 
-4/17 12:30am - 1:00am
-    - review background/prior research 
-4/17 2:00am - 2:30am
-    - cleaning data  
-4/18 1:45pm - 2:15, 2:45pm-3:30pm
-    - prior work 
-4/18 4:10pm - 4:50pm
-    - compiling dataset for trees
 

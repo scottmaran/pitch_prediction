@@ -123,6 +123,7 @@ def main():
         print(classification_report(val_y, y_pred, target_names=list(mapping.keys())), file=text_file)
 
     ''' Test Stats '''
+    test_y = test_y.map(mapping)
     y_test_pred = clf.predict(test_X)
     print('\n------------------ TEST DATA Confusion Matrix -----------------\n')
     test_cmatrix = confusion_matrix(test_y, y_test_pred)
