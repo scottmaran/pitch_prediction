@@ -113,8 +113,6 @@ We see in the below table that all our models outperform the naive baseline. "Ba
 
 The additional engineered features improved model accuracy by around 11%, as the models with these features hovered around 50% accuracy on the test set. Again the weighted model did slightly worse than the unweighted model. Somewhat interestingly, the model that did not include pitcher_id did very slightly better than the model that did include it (50.35% vs 50.26%). 
 
-I spun up a quick three layer neural network to get a sense of what "out of the box" results one could get with little hyperparameter tuning and relatively short training time. 
-
 | Model |  Validation Accuracy | Test Accuracy | 
 | :---------------- | :------: | ----: |
 | Naive Baseline: | 34.54% | 34.51%   | 
@@ -126,7 +124,11 @@ I spun up a quick three layer neural network to get a sense of what "out of the 
 | Weighted Full Feature minus Pitcher_ID: | 50.00% | 49.73% | 
 | 3 Linear Layer Neural Net: | 49.77% | 49.05% | 
 
-The LSTM paper's XGBoost model's reported average accuracy is 45.7%. While the Random Forest paper's reported accuracy was 66.7%, their naive baseline was 54.38% - only a 12.3% difference over the baseline, compared to my 15.8% difference over my baseline. 
+I spun up a quick three layer neural network with a varying amount of hidden units to get a sense of what "out of the box" results one could get with little hyperparameter tuning. I was a surprised to see no improvement from the XGBoost model results (validation and test accuracy were actually slightly worse). This provides evidence that a lot of the gains made from the LSTM paper is due to modeling pitches as sequences instead of singular instances.
+
+The LSTM paper's baseline XGBoost model that they trained reached an average accuracy of 45.7%. While the Random Forest paper's reported accuracy was 66.7%, their naive baseline was 54.38% - only a 12.3% difference over the baseline, compared to my 15.8% difference over my baseline.
+
+The prior research still reports raw higher accuracies though, which provides support for further investigating the use of individual models for each pitcher. It is also important to note that their naive baselines to compare to are different, since they consider the naive prediction to be each pitcher's most common pitch, while mine is the global most common pitch.
 
 ## Extended analysis
 
