@@ -41,7 +41,7 @@ I removed Fastballs (FA) from the dataset as (from my understanding) this could 
 I also removed 'AB', 'IN', 'PO', and 'UN', which left:
 ['FF', 'FT', 'SI', 'FC', 'FS', 'SL', 'CU', 'CH', 'KC', 'KN', 'EP', 'FO', 'SC'] as our 13 pitch types to predict.
 
-There is debate over the distinction between Two-Seam Fastballs (FT) and Sinkers (SI), as some group them together and others don't. As I myself have little baseball domain knowledge, I left them untouched. This was reinforced by their ample sample size within the dataset (if there were very few instances of one of them then it could make more sense to combine them).
+There is debate over the distinction between Two-Seam Fastballs (FT) and Sinkers (SI) but I left them separate, in part because of the large number of samples for both of them (if there were very few instances of one of them then it could make more sense to combine them).
 
 # Prior Work
 
@@ -68,8 +68,8 @@ A similar sentiment is echoed in the Random Forest paper.
 This is surprising to me for many reasons.
 1) From the above quote, each model only has a subset of the possible pitch types as output categories. This implies that a model for a given pitcher can never predict a pitch that the pitcher has never previously thrown.
 2) Splitting your data into multiple models not only greatly reduces the sample size for each model, but it also isolates the global information embedded within the features that exist across individual pitchers. In other words, a Justin Verlander model can learn how certain features generally impact pitching decisions even if Justin Verlander didn't throw the pitch.
-3) If you want to predict pitches on a previously-unseen pitcher, you need to build a whole new model
-4) And if you want to predict pitches on pitchers with a really low sample size...
+3) If you want to predict pitches on a previously-unseen pitcher, you need to build a whole new model.
+4) And if you want to predict pitches on pitchers with a really low sample size, you'd have few samples for that new model.
 
 The solution to 1) is to not vary the number of output categories, but the rest are limitations of individual models that are alleviated by a single global model. The tradeoff is that the global model may not be able to capture each individual's specific tendencies as well.
 
@@ -87,7 +87,7 @@ So the question becomes how can we fully describe each pitcher in the feature sp
 
 I also include some basic batter tendencies and specific tendencies for when the pitcher and specific batter have met before.
 
-The tradeoff here is that now, for each pitch, the model gets to view (close to) the pitcher's full tendencies in isolation from other pitchers. However, these tendencies are without the context of the other features that are present in the actual sample. Hypothetically, say Verlander usually throws 1) a Changeup (CU) after a Splitter (FS) and 2) throws more Sliders in later innings. In our global model, we will pick up on 1) with several features like previous_pitch_type, prev_5_FS_%, etc. However, the global model will only pick up on the trend for 2) in the global population, not specific to Verlander. So if pitchers generally throw less Sliders in later innings, then with our current feature set we will see more training examples with less Sliders in later innings and not predict it. This is in contrast to a single model trained on only Verlander's data, which will only see the relationship between Sliders and innings conditioned on Verlander's pitches..
+The tradeoff here is that now, for each pitch, the model gets to view (close to) the pitcher's full tendencies in isolation from other pitchers. However, these tendencies are without the context of the other features that are present in the actual sample. Hypothetically, say Verlander usually throws 1) a Changeup (CU) after a Splitter (FS) and 2) throws more Sliders in later innings. In our global model, we will pick up on 1) with several features like previous_pitch_type, prev_5_FS_%, etc. However, the global model will only pick up on the trend for 2) in the global population, not specific to Verlander. So if pitchers generally throw less Sliders in later innings, then with our current feature set we will see more training examples with less Sliders in later innings and not predict 2). This is in contrast to a single model trained on only Verlander's data, which will only see the relationship between Sliders and innings conditioned on Verlander's pitches..
 
 The ideal goal would be to include information that fully describes a pitcher. While it's unlikely this covers everything, the hope is that we can get our feature space close so we don't have to use categorical variables to describe pitchers.
 
@@ -103,15 +103,17 @@ Previous studies have simply removed pitches that did not meet a certain thresho
 
 Due to time constraints, I sought a middle ground between simpler baseline models (e.g. linear regression) and powerful yet complex models such as neural networks. Neural Networks are generally the most powerful and expressive models available, as evidenced by recent advancements in deep learning and natural language processing. And as evidenced by the LSTM paper, they can significantly outperformed older machine learning models. Yet they can be more difficult to train and would have required more data preprocessing to convert the data into sequences (if sequential architectures were used).
 
-Thus I chose to use an XGBoost model as it has empirical been one of the best classification algorithms yet can be spun up much more quickly. XGBoost also natively handles missing inputs nicely and are more interpretable, with easily computable quantitative feature importance metrics. A decision-tree-based framework might also closely model how a pitcher actually makes his decision on the mound.
+Thus I chose to devote most of my time to an XGBoost model, as it has empirical been one of the best classification algorithms yet can be spun up much more quickly. XGBoost also natively handles missing inputs nicely and are more interpretable, with easily computable quantitative feature importance metrics. A decision-tree-based framework might also closely model how a pitcher actually makes his decision on the mound.
 
 I ran several models trying different subsets of features, weighting the samples based on their type confidence, and also running preliminary tests on how individual models for each pitcher may perform. Our baseline is the best naive guess; i.e. what accuracy one would get by predicting the most common class every time (in this case, the Four-Seam Fastball). The "Base Models" are models that don't incorporate any of the pitcher or batter's tendencies (e.g. rate of Four-Seam Fastball's in last 10 pitches, etc.). The "Weighted" models are models trained on samples where the target is weighted by the type confidence given for each pitch. The "Full Feature Model" incorporates all engineered features.
 
 ## Results
 
-We see in the below table that all our models outperform the naive baseline. "Base Model" (trained on all pitchers) had better accuracy than "Base Model Per Pitcher", where I trained an individual XGBoost model for each pitcher. It also had a slightly higher test accuracy than the "Weighted Base Model"
+We see in the below table that all our models outperform the naive baseline. "Base Model" (trained on all pitchers) had better accuracy than "Base Model Per Pitcher", where I trained an individual XGBoost model for each pitcher. It also had a slightly higher test accuracy than the "Weighted Base Model". 
 
 The additional engineered features improved model accuracy by around 11%, as the models with these features hovered around 50% accuracy on the test set. Again the weighted model did slightly worse than the unweighted model. Somewhat interestingly, the model that did not include pitcher_id did very slightly better than the model that did include it (50.35% vs 50.26%). 
+
+I spun up a quick three layer neural network to get a sense of what "out of the box" results one could get with little hyperparameter tuning and relatively short training time. 
 
 | Model |  Validation Accuracy | Test Accuracy | 
 | :---------------- | :------: | ----: |
@@ -122,8 +124,9 @@ The additional engineered features improved model accuracy by around 11%, as the
 | Full Feature Model: | 50.40% | 50.26%    |
 | Full Feature minus Pitcher_ID: | 50.78% | 50.35%   | 
 | Weighted Full Feature minus Pitcher_ID: | 50.00% | 49.73% | 
+| 3 Linear Layer Neural Net: | 49.77% | 49.05% | 
 
-The LSTM paper's XGBoost model's reported average accuracy is 45.7%. While the Random Forest paper's reported accuracy was 66.7%, their naive baseline was 54.38% - only a 12.3% difference over the baseline, compared to my 15.8% difference over my baseline.
+The LSTM paper's XGBoost model's reported average accuracy is 45.7%. While the Random Forest paper's reported accuracy was 66.7%, their naive baseline was 54.38% - only a 12.3% difference over the baseline, compared to my 15.8% difference over my baseline. 
 
 ## Extended analysis
 
