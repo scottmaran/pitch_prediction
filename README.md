@@ -155,11 +155,15 @@ All the Sinkers had a type confidence of zero! So during training the model didn
 
 <img src="images/pitcher_example_unweighted.png" alt="pitcher example" width="550"/>
 
-Above is the report for the unweighted model for the same pitcher. We can see that we have the opposite problem now! The model's mostly predicting Sinkers (SI) at the expense of Curveballs (CU). This may be explained by the feature importance of the top variables in the model:
+Above is the report for the unweighted model for the same pitcher. We can see that we have the opposite problem now! The model's mostly predicting Sinkers (SI) at the expense of Curveballs (CU). This may be explained by the feature importance of the top variables in the model, as previous rates of thrown sinkers are some of the most important variables. 
 
 <img src="images/unweighted_model_feature_imp.png" alt="Feature Importance for Model" width="750"/>
 
-My next steps would be digging into this more closely.
+We can see that the most important features mostly comprised of measuring the pitcher's prior tendencies, with their previous 20 pitch rates and historical rates mostly being the most important (once splitting on knuckleballs, a relatively rare pitch type). The top three most important features not related to previous pitch types were p_throws (righty or lefty), strikes, and balls. P_throws was initially a little surprising but it looks like a pitcher's handedness could be useful for predicting base rates of non-Four-Seam Fastball throws:
+
+<img src="images/righty_vs_lefty.png" alt="Pitch Distribution for Righties vs Lefties" width="750"/>
+
+The handedness of the pitcher wasn't included as a feature in the Random Forest paper, but strikes and balls being so significant mirrors what they found in their model. Their model didn't rank previous pitch tendencies as highly, but that's because implicitly they are already accounting for some of that my training each model on a single pitcher.
 
 # Future Work
 ## Model Assumptions/Power
